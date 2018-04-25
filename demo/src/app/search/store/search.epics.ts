@@ -23,8 +23,53 @@ export class SearchEpicsService {
       switchMap(({
         payload
       }) => {
-        console.log(payload);
-        return empty(); // Return an empty stream. We'll replace this later
+
+        const url = 'https://en.wikipedia.org/w/api.php';
+
+        // Set up the query params we need
+        const params = new HttpParams({
+          fromObject: {
+            // Required by Wikipedia
+            action: 'opensearch',
+            format: 'json',
+            formatversion: '2',
+            namespace: '0',
+            limit: '10',
+            origin: '*',
+            // Our search term
+            search: payload.q
+          }
+        });
+
+        // Makes the request and switches to success / error Action
+        const request$ = this.http.get(url, {
+          params
+        }).pipe(
+          // Handles success
+          switchMap((response: any) => {
+            // Emit PAGES_SUCCESS with the response
+            return of({
+              type: SearchActionsService.PAGES_SUCCESS,
+              payload: {
+                response
+              }
+            });
+          }),
+          // Handles failure
+          catchError((response: HttpErrorResponse) => {
+            // Emit PAGES_ERROR
+            // In reality we would inspect the actual error response and even
+            // retry the request automatically
+            return of({
+              type: SearchActionsService.PAGES_ERROR
+            });
+          }),
+          // Cancels any inflight request if a new search is made
+          takeUntil(cancel$)
+        );
+
+        return request$;
+
       })
     );
   }
