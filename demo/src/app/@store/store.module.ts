@@ -3,12 +3,15 @@ import { NgModule } from '@angular/core';
 import { DevToolsExtension, NgRedux, NgReduxModule } from '@angular-redux/store';
 
 import rootReducer from './store.reducers';
+import { StoreService } from './store.service';
 
 @NgModule({
- imports: [
-   NgReduxModule
- ],
- providers: []
+  imports: [
+    NgReduxModule
+  ],
+  providers: [
+    StoreService
+  ]
 })
 export class StoreModule {
 
