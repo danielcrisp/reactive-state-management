@@ -2,3 +2,23 @@
     <input class="form-control" type="search" name="query" [(ngModel)]="query" required>
     <button class="btn btn-primary ml-2" type="submit" [disabled]="!searchForm.form.valid">Search</button>
 </form>
+
+<hr>
+
+<div *ngIf="q$ | async">
+   <div class="alert alert-info" *ngIf="loading$ | async; else resultsBlock">Loading...</div>
+   <ng-template #resultsBlock>
+       <h1>Results for {{ q$ | async }}</h1>
+       <div *ngIf="(pages$ | async).length; else noResultsBlock">
+           <div *ngFor="let page of pages$ | async">
+               <h3><a [attr.href]="page.url">{{ page.title }}</a></h3>
+               {{ page.description }}
+               <hr>
+           </div>
+       </div>
+       <ng-template #noResultsBlock>
+           <em>No results</em>
+       </ng-template>
+   </ng-template>
+</div>
+<div class="alert alert-danger" *ngIf="error$ | async">An error has occurred</div>
