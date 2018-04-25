@@ -1,6 +1,8 @@
 import { NgModule } from '@angular/core';
 
 import { DevToolsExtension, NgRedux, NgReduxModule } from '@angular-redux/store';
+import { ActionsObservable, createEpicMiddleware } from 'redux-observable';
+import { filter, mergeMap } from 'rxjs/operators';
 
 import rootReducer from './store.reducers';
 import { StoreService } from './store.service';
@@ -15,20 +17,42 @@ import { StoreService } from './store.service';
 })
 export class StoreModule {
 
- constructor(ngRedux: NgRedux <any> , devTools: DevToolsExtension) {
+ constructor (
+    ngRedux: NgRedux<any>,
+    devTools: DevToolsExtension,
+    storeService: StoreService
+  ) {
 
-   const middleware = [];
-   const enhancers = [];
+    const rootEpic = (action$: ActionsObservable<any>, store: NgRedux<any>) => {
+      return storeService.epics$.pipe(
+        filter(epic => !!epic),
+        mergeMap(epic => {
+          return epic(action$, store);
+        })
+      );
+    };
 
-   if (devTools.isEnabled()) {
-     enhancers.push(devTools.enhancer());
-   }
+    const middleware = [createEpicMiddleware(rootEpic)];
+    const enhancers = [];
 
-   ngRedux.configureStore(
-     rootReducer(), {},
-     middleware,
-     enhancers
-   );
+    if (devTools.isEnabled()) {
+      enhancers.push(devTools.enhancer());
+    }
 
- }
+    ngRedux.configureStore(
+      rootReducer(), {},
+      middleware,
+      enhancers
+    );
+
+    const injectedReducers = {};
+
+    storeService.reducers$.pipe(
+      filter(reducer => !!reducer)
+    ).subscribe((reducer) => {
+      injectedReducers[reducer.name] = reducer.reducer;
+      ngRedux.replaceReducer(rootReducer(injectedReducers));
+    });
+
+  }
 }
