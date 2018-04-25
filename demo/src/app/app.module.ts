@@ -4,6 +4,7 @@ import { NgModule } from '@angular/core';
 import { NgReduxModule } from '@angular-redux/store';
 
 import { AppRoutingModule } from './app-routing.module';
+import { SharedModule } from './@shared/shared.module';
 import { StoreModule } from './@store/store.module';
 
 import { AppComponent } from './app.component';
@@ -16,6 +17,7 @@ import { AppComponent } from './app.component';
   imports: [
     BrowserModule,
     NgReduxModule,
+    SharedModule,
     StoreModule,
     AppRoutingModule
   ],
