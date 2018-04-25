@@ -68,7 +68,14 @@ export class SearchEpicsService {
           takeUntil(cancel$)
         );
 
-        return request$;
+        const loading$ = of({
+          type: SearchActionsService.PAGES_LOADING
+        });
+
+        // Emit PAGES_LOADING first, then run request
+        return loading$.pipe(
+          concat(request$)
+        );
 
       })
     );
