@@ -1,6 +1,6 @@
 # Reactive state management with Angular
 
-> This repo accompanies a tutorial written for Net magazine which explains how
+> This repo accompanies a tutorial written for Web Designer magazine which explains how
 > to use Redux with Angular and RxJS to manage your state reactively.
 
 In this tutorial I'm going to show you how you can use the power of RxJS to
